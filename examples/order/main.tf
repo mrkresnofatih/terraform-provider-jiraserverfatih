@@ -1,19 +1,20 @@
 terraform {
   required_providers {
-    hashicups = {
-      source  = "hashicorp.com/edu/hashicups-pf"
+    jiraserverfatih = {
+      source = "mrkresnofatih/jiraserverfatih"
+      version = "1.0.2-dev"
     }
   }
-  required_version = ">= 1.1.0"
 }
 
-provider "hashicups" {
+provider "jiraserverfatih" {
+  # Configuration options
   authorizationMethod = "Bearer"
-  token = "dsdadadsadsdasdadsadasadasdasdas"
-  host     = "sample.app-dev.fatihcompany.com"
+  token = "MzI2OTExNDY0MjI1OgH5gVAN5+57IbtOHB4TbB5EDSkZ"
+  host     = "support.app-dev.cloudvanti.com"
 }
 
-resource "hashicups_projectrole" "anewrole" {
+resource "jiraserverfatih_projectrole" "anewrole" {
   name = "Abrandnewrole"
   description = "a brand new role 0938"
 }

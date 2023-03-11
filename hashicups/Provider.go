@@ -14,24 +14,24 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces
 var (
-	_ provider.Provider = &hashicupsProvider{}
+	_ provider.Provider = &jiraServerFatihProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
 func New() provider.Provider {
-	return &hashicupsProvider{}
+	return &jiraServerFatihProvider{}
 }
 
-// hashicupsProvider is the provider implementation.
-type hashicupsProvider struct{}
+// jiraServerFatihProvider is the provider implementation.
+type jiraServerFatihProvider struct{}
 
 // Metadata returns the provider type name.
-func (p *hashicupsProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "hashicups"
+func (p *jiraServerFatihProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "jiraserverfatih"
 }
 
 // Schema defines the provider-level schema for configuration data.
-func (p *hashicupsProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *jiraServerFatihProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
@@ -39,7 +39,7 @@ func (p *hashicupsProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				Required:    true,
 				Description: "The domain name of your Jira Server e.g. jira.app-dev.company.com",
 			},
-			"authorizationMethod": schema.StringAttribute{
+			"authorization_method": schema.StringAttribute{
 				Optional:    false,
 				Required:    true,
 				Description: "Valid values are: Basic | Bearer",
@@ -60,7 +60,7 @@ type jiraServerProviderModel struct {
 }
 
 // Configure prepares a HashiCups API client for data sources and resources.
-func (p *hashicupsProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+func (p *jiraServerFatihProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	var config jiraServerProviderModel
 	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
@@ -86,7 +86,7 @@ func (p *hashicupsProvider) Configure(ctx context.Context, req provider.Configur
 
 	if config.AuthorizationMethod.IsNull() || (config.AuthorizationMethod.ValueString() != "Bearer" && config.AuthorizationMethod.ValueString() != "Basic") {
 		resp.Diagnostics.AddAttributeError(
-			path.Root("authorizationMethod"),
+			path.Root("authorization_method"),
 			"Unknown AuthorizationMethod",
 			"The provider cannot create an http request using an unknown AuthorizationMethod host, e.g. Basic or Bearer",
 		)
@@ -106,12 +106,12 @@ func (p *hashicupsProvider) Configure(ctx context.Context, req provider.Configur
 }
 
 // DataSources defines the data sources implemented in the provider.
-func (p *hashicupsProvider) DataSources(_ context.Context) []func() datasource.DataSource {
+func (p *jiraServerFatihProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return nil
 }
 
 // Resources defines the resources implemented in the provider.
-func (p *hashicupsProvider) Resources(_ context.Context) []func() resource.Resource {
+func (p *jiraServerFatihProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		resources.NewProjectRoleResource,
 	}
