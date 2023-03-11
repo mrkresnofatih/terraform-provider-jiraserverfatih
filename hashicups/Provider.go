@@ -14,6 +14,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{},
 		ResourcesMap: map[string]*schema.Resource{
 			"jiraserverfatih_projectrole": resources.ProjectRoleResource(),
+			"jiraserverfatih_group":       resources.GroupResource(),
 		},
 		Schema: map[string]*schema.Schema{
 			"domain": &schema.Schema{
