@@ -16,7 +16,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Id()
+			name := data.Get("name").(string)
 			description := data.Get("description").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
@@ -47,7 +47,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Id()
+			name := data.Get("name").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
 				JiraServerBase: client,
@@ -75,7 +75,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Id()
+			name := data.Get("name").(string)
 			description := data.Get("description").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
@@ -107,7 +107,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Id()
+			name := data.Get("name").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
 				JiraServerBase: client,
