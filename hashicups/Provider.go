@@ -55,7 +55,7 @@ func (p *jiraServerFatihProvider) Schema(_ context.Context, _ provider.SchemaReq
 
 type jiraServerProviderModel struct {
 	Host                types.String `tfsdk:"host"`
-	AuthorizationMethod types.String `tfsdk:"authorizationMethod"`
+	AuthorizationMethod types.String `tfsdk:"authorization_method"`
 	Token               types.String `tfsdk:"token"`
 }
 
