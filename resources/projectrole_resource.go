@@ -60,7 +60,7 @@ func (p projectRoleResource) Create(ctx context.Context, request resource.Create
 		return
 	}
 
-	createdProjectRole, err := projectRoleService.CreateRole(models2.ProjectRoleCreateRequestModel{
+	createdProjectRole, err := projectRoleService.CreateRole(ctx, models2.ProjectRoleCreateRequestModel{
 		Name:        plan.Name.ValueString(),
 		Description: plan.Description.ValueString(),
 	})
@@ -91,7 +91,7 @@ func (p projectRoleResource) Read(ctx context.Context, request resource.ReadRequ
 		return
 	}
 
-	projectRole, err := projectRoleService.GetRole(models2.ProjectRoleGetRequestModel{
+	projectRole, err := projectRoleService.GetRole(ctx, models2.ProjectRoleGetRequestModel{
 		Name: state.Name.ValueString(),
 	})
 	if err != nil {

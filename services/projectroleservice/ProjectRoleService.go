@@ -2,8 +2,11 @@ package projectroleservice
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"io"
 	"log"
 	"net/http"
@@ -14,20 +17,20 @@ import (
 )
 
 type IProjectRoleService interface {
-	GetRole(model models.ProjectRoleGetRequestModel) (models.ProjectRoleGetResponseModel, error)
-	ListRoles(model models.ProjectRoleListRequestModel) (models.ProjectRoleListResponseModel, error)
-	UpdateRole(model models.ProjectRoleUpdateRequestModel) (models.ProjectRoleUpdateResponseModel, error)
-	CreateRole(model models.ProjectRoleCreateRequestModel) (models.ProjectRoleCreateResponseModel, error)
-	DeleteRole(model models.ProjectRoleDeleteRequestModel) (models.ProjectRoleDeleteResponseModel, error)
+	GetRole(ctx context.Context, model models.ProjectRoleGetRequestModel) (models.ProjectRoleGetResponseModel, error)
+	ListRoles(ctx context.Context, model models.ProjectRoleListRequestModel) (models.ProjectRoleListResponseModel, error)
+	UpdateRole(ctx context.Context, model models.ProjectRoleUpdateRequestModel) (models.ProjectRoleUpdateResponseModel, error)
+	CreateRole(ctx context.Context, model models.ProjectRoleCreateRequestModel) (models.ProjectRoleCreateResponseModel, error)
+	DeleteRole(ctx context.Context, model models.ProjectRoleDeleteRequestModel) (models.ProjectRoleDeleteResponseModel, error)
 }
 
 type ProjectRoleService struct {
 	JiraServerBase models2.JiraServerBase `json:"jiraServerBase"`
 }
 
-func (p ProjectRoleService) UpdateRole(model models.ProjectRoleUpdateRequestModel) (models.ProjectRoleUpdateResponseModel, error) {
+func (p ProjectRoleService) UpdateRole(ctx context.Context, model models.ProjectRoleUpdateRequestModel) (models.ProjectRoleUpdateResponseModel, error) {
 	log.Printf("start update role w. data: %s", model)
-	role, err := p.GetRole(models.ProjectRoleGetRequestModel{
+	role, err := p.GetRole(ctx, models.ProjectRoleGetRequestModel{
 		Name: model.Name,
 	})
 	if err != nil {
@@ -84,9 +87,9 @@ func (p ProjectRoleService) UpdateRole(model models.ProjectRoleUpdateRequestMode
 	return result, nil
 }
 
-func (p ProjectRoleService) GetRole(model models.ProjectRoleGetRequestModel) (models.ProjectRoleGetResponseModel, error) {
-	log.Printf("start get role w. data: %s", model)
-	roles, err := p.ListRoles(models.ProjectRoleListRequestModel{})
+func (p ProjectRoleService) GetRole(ctx context.Context, model models.ProjectRoleGetRequestModel) (models.ProjectRoleGetResponseModel, error) {
+	tflog.Info(ctx, fmt.Sprintf("start get role w. data: %s", model))
+	roles, err := p.ListRoles(ctx, models.ProjectRoleListRequestModel{})
 	if err != nil {
 		log.Println("failed to list roles")
 		return *new(models.ProjectRoleGetResponseModel), errors.New("failed to list roles")
@@ -107,12 +110,12 @@ func (p ProjectRoleService) GetRole(model models.ProjectRoleGetRequestModel) (mo
 	return foundRole, nil
 }
 
-func (p ProjectRoleService) ListRoles(model models.ProjectRoleListRequestModel) (models.ProjectRoleListResponseModel, error) {
-	log.Printf("start list roles w. data: %s", model)
+func (p ProjectRoleService) ListRoles(ctx context.Context, model models.ProjectRoleListRequestModel) (models.ProjectRoleListResponseModel, error) {
+	tflog.Info(ctx, fmt.Sprintf("start list roles w. data: %s", model))
 	url := "https://" + p.JiraServerBase.Domain + "/rest/api/2/role"
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Println("error building http request")
+		tflog.Info(ctx, "error building http request")
 		return *new(models.ProjectRoleListResponseModel), errors.New("error building http request")
 	}
 	req.Header.Set("Authorization", p.JiraServerBase.AuthorizationMethod+" "+p.JiraServerBase.Token)
@@ -123,46 +126,47 @@ func (p ProjectRoleService) ListRoles(model models.ProjectRoleListRequestModel) 
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Println(err.Error())
-		log.Println("http request failed")
+		tflog.Info(ctx, err.Error())
+		tflog.Info(ctx, "http request failed")
 		return *new(models.ProjectRoleListResponseModel), errors.New("http request returned error")
 	}
 
-	log.Println(res.Status)
+	tflog.Info(ctx, res.Status)
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Println("read all body failed")
+		tflog.Info(ctx, "read all body failed")
 		return *new(models.ProjectRoleListResponseModel), errors.New("error reading response body")
 	}
 
-	log.Println("response body: " + string(body))
+	tflog.Info(ctx, "response body: "+string(body))
 
 	result := models.ProjectRoleListResponseModel{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		log.Println("failed to unmarshal response body")
+		tflog.Info(ctx, "failed to unmarshal response body")
 		return *new(models.ProjectRoleListResponseModel), errors.New("error unmarshalling response body")
 	}
 
-	log.Println("success project list roles")
+	tflog.Info(ctx, "success project list roles")
 	return result, nil
 }
 
-func (p ProjectRoleService) CreateRole(model models.ProjectRoleCreateRequestModel) (models.ProjectRoleCreateResponseModel, error) {
-	log.Printf("Start CreateRole w. data: %s", model)
+func (p ProjectRoleService) CreateRole(ctx context.Context, model models.ProjectRoleCreateRequestModel) (models.ProjectRoleCreateResponseModel, error) {
+	tflog.Info(ctx, fmt.Sprintf("Start CreateRole w. data: %s", model))
+
 	serialized, err := json.Marshal(models.ProjectRoleCreateApiRequestModel{
 		Name:        model.Name,
 		Description: model.Description,
 	})
 	if err != nil {
-		log.Println("error when json marshaling")
+		tflog.Info(ctx, "error when json marshaling")
 		return *new(models.ProjectRoleCreateResponseModel), errors.New("error json marshal request data")
 	}
 	bodyReader := bytes.NewReader(serialized)
 	url := "https://" + p.JiraServerBase.Domain + "/rest/api/2/role"
 	req, err := http.NewRequest(http.MethodPost, url, bodyReader)
 	if err != nil {
-		log.Println("error building http request")
+		tflog.Info(ctx, "error building http request")
 		return *new(models.ProjectRoleCreateResponseModel), errors.New("error building http request")
 	}
 	req.Header.Set("Authorization", p.JiraServerBase.AuthorizationMethod+" "+p.JiraServerBase.Token)
@@ -172,35 +176,35 @@ func (p ProjectRoleService) CreateRole(model models.ProjectRoleCreateRequestMode
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Println("error result from http request")
+		tflog.Info(ctx, "error result from http request")
 		return *new(models.ProjectRoleCreateResponseModel), errors.New("error result from http request")
 	}
 	defer res.Body.Close()
 
-	log.Println(res.Status)
+	tflog.Info(ctx, res.Status)
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Println("read all body failed")
+		tflog.Info(ctx, "read all body failed")
 		return *new(models.ProjectRoleCreateResponseModel), errors.New("error reading response body")
 	}
 
-	log.Println("response body: " + string(body))
+	tflog.Info(ctx, "response body: "+string(body))
 
 	result := models.ProjectRoleCreateResponseModel{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		log.Println("failed to unmarshal response body")
+		tflog.Info(ctx, "failed to unmarshal response body")
 		return *new(models.ProjectRoleCreateResponseModel), errors.New("error unmarshalling response body")
 	}
 
-	log.Println("success create project role")
+	tflog.Info(ctx, "success create project role")
 	return result, nil
 }
 
-func (p ProjectRoleService) DeleteRole(model models.ProjectRoleDeleteRequestModel) (models.ProjectRoleDeleteResponseModel, error) {
+func (p ProjectRoleService) DeleteRole(ctx context.Context, model models.ProjectRoleDeleteRequestModel) (models.ProjectRoleDeleteResponseModel, error) {
 	log.Printf("start update role w. data: %s", model)
-	role, err := p.GetRole(models.ProjectRoleGetRequestModel{
+	role, err := p.GetRole(ctx, models.ProjectRoleGetRequestModel{
 		Name: model.Name,
 	})
 	if err != nil {
