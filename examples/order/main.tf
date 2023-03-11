@@ -8,26 +8,12 @@ terraform {
 }
 
 provider "hashicups" {
-  username = "education"
-  password = "test123"
-  host     = "http://localhost:19090"
+  authorizationMethod = "Bearer"
+  token = "dsdadadsadsdasdadsadasadasdasdas"
+  host     = "sample.app-dev.fatihcompany.com"
 }
 
-resource "hashicups_order" "edu" {
-  items = [{
-    coffee = {
-      id = 3
-    }
-    quantity = 2
-    }, {
-    coffee = {
-      id = 1
-    }
-    quantity = 2
-    }
-  ]
-}
-
-output "edu_order" {
-  value = hashicups_order.edu
+resource "hashicups_projectrole" "anewrole" {
+  name = "Abrandnewrole"
+  description = "a brand new role 0938"
 }
