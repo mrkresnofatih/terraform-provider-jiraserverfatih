@@ -23,6 +23,7 @@ func Provider() *schema.Provider {
 			},
 			"authorization_method": &schema.Schema{
 				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The authorization method in the request header, valid values: Bearer or Basic",
 			},
 			"token": &schema.Schema{
