@@ -2,126 +2,139 @@ package resources
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 	"terraform-provider-hashicups-pf/services/baseservice/models"
 	"terraform-provider-hashicups-pf/services/projectroleservice"
 	models2 "terraform-provider-hashicups-pf/services/projectroleservice/models"
 )
 
-var (
-	_ resource.Resource              = &projectRoleResource{}
-	_ resource.ResourceWithConfigure = &projectRoleResource{}
-)
+func ProjectRoleResource() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+			var diags diag.Diagnostics
+			client := i.(*models.JiraServerBase)
 
-type projectRoleModel struct {
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-}
+			name := data.Get("name").(string)
+			description := data.Get("description").(string)
 
-type projectRoleResource struct {
-	client models.JiraServerBase
-}
+			projectRoleService := projectroleservice.ProjectRoleService{
+				JiraServerBase: *client,
+			}
 
-func (p projectRoleResource) Configure(ctx context.Context, request resource.ConfigureRequest, response *resource.ConfigureResponse) {
-	if request.ProviderData == nil {
-		return
-	}
-	p.client = request.ProviderData.(models.JiraServerBase)
-}
+			createdRole, err := projectRoleService.CreateRole(ctx, models2.ProjectRoleCreateRequestModel{
+				Name:        name,
+				Description: description,
+			})
+			if err != nil {
+				return diag.FromErr(err)
+			}
 
-func (p projectRoleResource) Metadata(ctx context.Context, request resource.MetadataRequest, response *resource.MetadataResponse) {
-	response.TypeName = request.ProviderTypeName + "_projectrole"
-}
+			if err = data.Set("name", createdRole.Name); err != nil {
+				return diag.FromErr(err)
+			}
 
-func (p projectRoleResource) Schema(ctx context.Context, request resource.SchemaRequest, response *resource.SchemaResponse) {
-	response.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"name": schema.StringAttribute{
-				Required: true,
+			if err = data.Set("description", createdRole.Description); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(createdRole.Name)
+			log.Println("success create project role")
+			return diags
+		},
+		ReadContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+			var diags diag.Diagnostics
+			client := i.(*models.JiraServerBase)
+
+			name := data.Get("name").(string)
+
+			projectRoleService := projectroleservice.ProjectRoleService{
+				JiraServerBase: *client,
+			}
+
+			projectRole, err := projectRoleService.GetRole(ctx, models2.ProjectRoleGetRequestModel{
+				Name: name,
+			})
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			if err = data.Set("name", projectRole.Name); err != nil {
+				return diag.FromErr(err)
+			}
+
+			if err = data.Set("description", projectRole.Description); err != nil {
+				return diag.FromErr(err)
+			}
+
+			log.Println("success get project role")
+			return diags
+		},
+		UpdateContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+			var diags diag.Diagnostics
+			client := i.(*models.JiraServerBase)
+
+			name := data.Get("name").(string)
+			description := data.Get("description").(string)
+
+			projectRoleService := projectroleservice.ProjectRoleService{
+				JiraServerBase: *client,
+			}
+
+			updatedRole, err := projectRoleService.UpdateRole(ctx, models2.ProjectRoleUpdateRequestModel{
+				Name:        name,
+				Description: description,
+			})
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			if err = data.Set("name", updatedRole.Name); err != nil {
+				return diag.FromErr(err)
+			}
+
+			if err = data.Set("description", updatedRole.Description); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(updatedRole.Name)
+
+			log.Println("success update project role")
+			return diags
+		},
+		DeleteContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
+			var diags diag.Diagnostics
+			client := i.(*models.JiraServerBase)
+
+			name := data.Get("name").(string)
+
+			projectRoleService := projectroleservice.ProjectRoleService{
+				JiraServerBase: *client,
+			}
+
+			_, err := projectRoleService.DeleteRole(ctx, models2.ProjectRoleDeleteRequestModel{
+				Name: name,
+			})
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			data.SetId("")
+
+			log.Println("success delete project role")
+			return diags
+		},
+		Schema: map[string]*schema.Schema{
+			"name": &schema.Schema{
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "name of project role",
 			},
-			"description": schema.StringAttribute{
-				Required: true,
+			"description": &schema.Schema{
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "description of project role",
 			},
 		},
 	}
-}
-
-func (p projectRoleResource) Create(ctx context.Context, request resource.CreateRequest, response *resource.CreateResponse) {
-	projectRoleService := projectroleservice.ProjectRoleService{
-		JiraServerBase: p.client,
-	}
-
-	var plan projectRoleModel
-	diags := request.Plan.Get(ctx, &plan)
-	response.Diagnostics.Append(diags...)
-	if response.Diagnostics.HasError() {
-		return
-	}
-
-	createdProjectRole, err := projectRoleService.CreateRole(ctx, models2.ProjectRoleCreateRequestModel{
-		Name:        plan.Name.ValueString(),
-		Description: plan.Description.ValueString(),
-	})
-	if err != nil {
-		response.Diagnostics.AddError(
-			"Error creating project role",
-			"Could not create order, unexpected error: "+err.Error(),
-		)
-		return
-	}
-
-	diags = response.State.Set(ctx, &createdProjectRole)
-	response.Diagnostics.Append(diags...)
-	if response.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (p projectRoleResource) Read(ctx context.Context, request resource.ReadRequest, response *resource.ReadResponse) {
-	projectRoleService := projectroleservice.ProjectRoleService{
-		JiraServerBase: p.client,
-	}
-
-	var state projectRoleModel
-	diags := request.State.Get(ctx, &state)
-	response.Diagnostics.Append(diags...)
-	if response.Diagnostics.HasError() {
-		return
-	}
-
-	projectRole, err := projectRoleService.GetRole(ctx, models2.ProjectRoleGetRequestModel{
-		Name: state.Name.ValueString(),
-	})
-	if err != nil {
-		response.Diagnostics.AddError(
-			"Error Reading Project Role",
-			"Could not read Project Role w. name "+state.Name.ValueString()+": "+err.Error(),
-		)
-		return
-	}
-
-	state.Name = types.StringValue(projectRole.Name)
-	state.Description = types.StringValue(projectRole.Description)
-
-	diags = response.State.Set(ctx, &state)
-	response.Diagnostics.Append(diags...)
-	if response.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (p projectRoleResource) Update(ctx context.Context, request resource.UpdateRequest, response *resource.UpdateResponse) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p projectRoleResource) Delete(ctx context.Context, request resource.DeleteRequest, response *resource.DeleteResponse) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func NewProjectRoleResource() resource.Resource {
-	return &projectRoleResource{}
 }

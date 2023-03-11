@@ -2,117 +2,49 @@ package hashicups
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"terraform-provider-hashicups-pf/resources"
 	"terraform-provider-hashicups-pf/services/baseservice/models"
 )
 
-// Ensure the implementation satisfies the expected interfaces
-var (
-	_ provider.Provider = &jiraServerFatihProvider{}
-)
-
-// New is a helper function to simplify provider server and testing implementation.
-func New() provider.Provider {
-	return &jiraServerFatihProvider{}
-}
-
-// jiraServerFatihProvider is the provider implementation.
-type jiraServerFatihProvider struct{}
-
-// Metadata returns the provider type name.
-func (p *jiraServerFatihProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "jiraserverfatih"
-}
-
-// Schema defines the provider-level schema for configuration data.
-func (p *jiraServerFatihProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"host": schema.StringAttribute{
-				Optional:    false,
+func Provider() *schema.Provider {
+	return &schema.Provider{
+		DataSourcesMap: map[string]*schema.Resource{},
+		ResourcesMap: map[string]*schema.Resource{
+			"projectrole_resource": resources.ProjectRoleResource(),
+		},
+		Schema: map[string]*schema.Schema{
+			"domain": &schema.Schema{
+				Type:        schema.TypeString,
+				Description: "The domain for your jira server",
 				Required:    true,
-				Description: "The domain name of your Jira Server e.g. jira.app-dev.company.com",
 			},
-			"authorization_method": schema.StringAttribute{
-				Optional:    false,
-				Required:    true,
-				Description: "Valid values are: Basic | Bearer",
+			"authorization_method": &schema.Schema{
+				Type:        schema.TypeString,
+				Description: "The authorization method in the request header, valid values: Bearer or Basic",
 			},
-			"token": schema.StringAttribute{
-				Optional:    false,
+			"token": &schema.Schema{
+				Type:        schema.TypeString,
 				Required:    true,
-				Description: "token value that follows the authorization method",
+				Description: "The token for the authorization header",
 			},
 		},
-	}
-}
+		ConfigureContextFunc: func(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			var diags diag.Diagnostics
 
-type jiraServerProviderModel struct {
-	Host                types.String `tfsdk:"host"`
-	AuthorizationMethod types.String `tfsdk:"authorization_method"`
-	Token               types.String `tfsdk:"token"`
-}
-
-// Configure prepares a HashiCups API client for data sources and resources.
-func (p *jiraServerFatihProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var config jiraServerProviderModel
-	diags := req.Config.Get(ctx, &config)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if config.Host.IsNull() || config.Host.ValueString() == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("host"),
-			"Unknown Host",
-			"The provider cannot create an http request using an empty host",
-		)
-	}
-
-	if config.Token.IsNull() || config.Token.ValueString() == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("token"),
-			"Unknown token",
-			"The provider cannot create an http request using an empty token",
-		)
-	}
-
-	if config.AuthorizationMethod.IsNull() || (config.AuthorizationMethod.ValueString() != "Bearer" && config.AuthorizationMethod.ValueString() != "Basic") {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("authorization_method"),
-			"Unknown AuthorizationMethod",
-			"The provider cannot create an http request using an unknown AuthorizationMethod host, e.g. Basic or Bearer",
-		)
-	}
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	client := models.JiraServerBase{
-		Token:               config.Token.ValueString(),
-		AuthorizationMethod: config.AuthorizationMethod.ValueString(),
-		Domain:              config.Host.ValueString(),
-	}
-	resp.DataSourceData = client
-	resp.ResourceData = client
-}
-
-// DataSources defines the data sources implemented in the provider.
-func (p *jiraServerFatihProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return nil
-}
-
-// Resources defines the resources implemented in the provider.
-func (p *jiraServerFatihProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
-		resources.NewProjectRoleResource,
+			domain := data.Get("domain").(string)
+			authMethod := data.Get("authorization_method").(string)
+			token := data.Get("token").(string)
+			if domain == "" || authMethod == "" || token == "" {
+				return nil, diag.FromErr(errors.New("domain or auth_method or token is empty"))
+			}
+			return models.JiraServerBase{
+				Domain:              domain,
+				Token:               token,
+				AuthorizationMethod: authMethod,
+			}, diags
+		},
 	}
 }
