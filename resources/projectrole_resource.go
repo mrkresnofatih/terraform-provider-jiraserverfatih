@@ -125,6 +125,11 @@ func ProjectRoleResource() *schema.Resource {
 			return diags
 		},
 		Schema: map[string]*schema.Schema{
+			"name": &schema.Schema{
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "name of project role",
+			},
 			"description": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
