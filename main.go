@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"terraform-provider-hashicups-pf/hashicups"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"terraform-provider-hashicups-pf/hashicups"
 )
 
 func main() {

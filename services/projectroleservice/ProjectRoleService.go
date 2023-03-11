@@ -177,7 +177,7 @@ func (p ProjectRoleService) CreateRole(ctx context.Context, model models.Project
 	res, err := client.Do(req)
 	if err != nil {
 		tflog.Info(ctx, "error result from http request")
-		return *new(models.ProjectRoleCreateResponseModel), errors.New("error result from http request")
+		return *new(models.ProjectRoleCreateResponseModel), errors.New("error result from http request " + err.Error())
 	}
 	defer res.Body.Close()
 
