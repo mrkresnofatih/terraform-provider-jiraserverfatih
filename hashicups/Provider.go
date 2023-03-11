@@ -13,7 +13,7 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		DataSourcesMap: map[string]*schema.Resource{},
 		ResourcesMap: map[string]*schema.Resource{
-			"jiraserverfatih_projectroleresource": resources.ProjectRoleResource(),
+			"jiraserverfatih_projectrole": resources.ProjectRoleResource(),
 		},
 		Schema: map[string]*schema.Schema{
 			"domain": &schema.Schema{
