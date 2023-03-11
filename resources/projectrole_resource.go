@@ -16,7 +16,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			name := data.Id()
 			description := data.Get("description").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
@@ -47,7 +47,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			name := data.Id()
 
 			projectRoleService := projectroleservice.ProjectRoleService{
 				JiraServerBase: client,
@@ -75,7 +75,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			name := data.Id()
 			description := data.Get("description").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
@@ -107,7 +107,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			name := data.Id()
 
 			projectRoleService := projectroleservice.ProjectRoleService{
 				JiraServerBase: client,
@@ -125,11 +125,6 @@ func ProjectRoleResource() *schema.Resource {
 			return diags
 		},
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "name of project role",
-			},
 			"description": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
