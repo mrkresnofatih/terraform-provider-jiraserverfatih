@@ -14,13 +14,13 @@ func ProjectRoleResource() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 			var diags diag.Diagnostics
-			client := i.(*models.JiraServerBase)
+			client := i.(models.JiraServerBase)
 
 			name := data.Get("name").(string)
 			description := data.Get("description").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
-				JiraServerBase: *client,
+				JiraServerBase: client,
 			}
 
 			createdRole, err := projectRoleService.CreateRole(ctx, models2.ProjectRoleCreateRequestModel{
@@ -45,12 +45,12 @@ func ProjectRoleResource() *schema.Resource {
 		},
 		ReadContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 			var diags diag.Diagnostics
-			client := i.(*models.JiraServerBase)
+			client := i.(models.JiraServerBase)
 
 			name := data.Get("name").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
-				JiraServerBase: *client,
+				JiraServerBase: client,
 			}
 
 			projectRole, err := projectRoleService.GetRole(ctx, models2.ProjectRoleGetRequestModel{
@@ -73,13 +73,13 @@ func ProjectRoleResource() *schema.Resource {
 		},
 		UpdateContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 			var diags diag.Diagnostics
-			client := i.(*models.JiraServerBase)
+			client := i.(models.JiraServerBase)
 
 			name := data.Get("name").(string)
 			description := data.Get("description").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
-				JiraServerBase: *client,
+				JiraServerBase: client,
 			}
 
 			updatedRole, err := projectRoleService.UpdateRole(ctx, models2.ProjectRoleUpdateRequestModel{
@@ -105,12 +105,12 @@ func ProjectRoleResource() *schema.Resource {
 		},
 		DeleteContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 			var diags diag.Diagnostics
-			client := i.(*models.JiraServerBase)
+			client := i.(models.JiraServerBase)
 
 			name := data.Get("name").(string)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
-				JiraServerBase: *client,
+				JiraServerBase: client,
 			}
 
 			_, err := projectRoleService.DeleteRole(ctx, models2.ProjectRoleDeleteRequestModel{
