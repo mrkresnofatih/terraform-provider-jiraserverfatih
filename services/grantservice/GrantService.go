@@ -199,6 +199,7 @@ func (g GrantService) Create(ctx context.Context, model models.GrantCreateReques
 	}
 
 	result.PermissionSchemeName = model.PermissionSchemeName
+	result.Holder.Parameter = model.Holder.Parameter
 	log.Println("success create permission scheme grant")
 	return result, nil
 }
