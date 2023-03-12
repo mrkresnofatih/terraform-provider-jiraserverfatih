@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	url2 "net/url"
 	models2 "terraform-provider-hashicups-pf/services/baseservice/models"
 	"terraform-provider-hashicups-pf/services/groupservice/models"
 	"time"
@@ -100,7 +101,7 @@ func (g GroupService) Get(ctx context.Context, model models.GroupGetRequestModel
 
 func (g GroupService) List(ctx context.Context, model models.GroupListApiRequestModel) (models.GroupListResponseModel, error) {
 	tflog.Info(ctx, fmt.Sprintf("start list groups w. data: %s", model))
-	url := "https://" + g.JiraServerBase.Domain + "/rest/api/2/groups/picker?query=" + model.GroupName
+	url := "https://" + g.JiraServerBase.Domain + "/rest/api/2/groups/picker?query=" + url2.QueryEscape(model.GroupName)
 	log.Println(url)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
