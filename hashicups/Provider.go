@@ -16,6 +16,7 @@ func Provider() *schema.Provider {
 			"jiraserverfatih_projectrole":      resources.ProjectRoleResource(),
 			"jiraserverfatih_group":            resources.GroupResource(),
 			"jiraserverfatih_permissionscheme": resources.PermissionSchemeResource(),
+			"jiraserverfatih_grant":            resources.GrantResource(),
 		},
 		Schema: map[string]*schema.Schema{
 			"domain": &schema.Schema{
