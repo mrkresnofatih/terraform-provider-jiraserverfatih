@@ -18,7 +18,7 @@ func IssueTypeResource() *schema.Resource {
 
 			name := data.Get("name").(string)
 			description := data.Get("description").(string)
-			avatar_id := data.Get("avatar_id").(int64)
+			avatar_id := data.Get("avatar_id").(int)
 
 			issueTypeService := issuetypeservice.IssueTypeService{
 				JiraServerBase: client,
@@ -27,7 +27,7 @@ func IssueTypeResource() *schema.Resource {
 			createdIssueType, err := issueTypeService.Create(ctx, models2.IssueTypeCreateRequestModel{
 				Name:        name,
 				Description: description,
-				AvatarId:    avatar_id,
+				AvatarId:    int64(avatar_id),
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -73,7 +73,7 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("avatar_id", foundIssueType.AvatarId); err != nil {
+			if err = data.Set("avatar_id", int(foundIssueType.AvatarId)); err != nil {
 				return diag.FromErr(err)
 			}
 
@@ -88,7 +88,7 @@ func IssueTypeResource() *schema.Resource {
 
 			name := data.Get("name").(string)
 			description := data.Get("description").(string)
-			avatar_id := data.Get("avatar_id").(int64)
+			avatar_id := data.Get("avatar_id").(int)
 
 			issueTypeService := issuetypeservice.IssueTypeService{
 				JiraServerBase: client,
@@ -97,7 +97,7 @@ func IssueTypeResource() *schema.Resource {
 			updatedIssueType, err := issueTypeService.Update(ctx, models2.IssueTypeUpdateRequestModel{
 				Name:        name,
 				Description: description,
-				AvatarId:    avatar_id,
+				AvatarId:    int64(avatar_id),
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -111,7 +111,7 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("avatar_id", updatedIssueType.AvatarId); err != nil {
+			if err = data.Set("avatar_id", int(updatedIssueType.AvatarId)); err != nil {
 				return diag.FromErr(err)
 			}
 

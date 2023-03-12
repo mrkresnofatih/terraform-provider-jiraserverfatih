@@ -52,7 +52,7 @@ func (g GrantService) Get(ctx context.Context, model models.GrantGetRequestModel
 	})
 	if err != nil {
 		tflog.Info(ctx, "failed to find project role with role name "+model.Holder.Parameter)
-		return *new(models.GrantGetResponseModel), errors.New("failed to find project role")
+		return *new(models.GrantGetResponseModel), errors.New("failed to find project role with role name " + model.Holder.Parameter)
 	}
 
 	foundGrant := models.GrantGetResponseModel{}
