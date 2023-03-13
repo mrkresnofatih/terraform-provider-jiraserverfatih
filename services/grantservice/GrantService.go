@@ -68,6 +68,7 @@ func (g GrantService) Get(ctx context.Context, model models.GrantGetRequestModel
 	}
 
 	foundGrant.Holder.Parameter = model.Holder.Parameter
+	foundGrant.PermissionSchemeName = model.PermissionSchemeName
 	tflog.Info(ctx, "success find permission scheme grant")
 	return foundGrant, nil
 }
