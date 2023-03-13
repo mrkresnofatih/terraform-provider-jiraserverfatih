@@ -67,6 +67,7 @@ func (g GrantService) Get(ctx context.Context, model models.GrantGetRequestModel
 		return *new(models.GrantGetResponseModel), errors.New("failed to find permission scheme grant in returned grants list")
 	}
 
+	foundGrant.Holder.Parameter = model.Holder.Parameter
 	tflog.Info(ctx, "success find permission scheme grant")
 	return foundGrant, nil
 }
