@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+	"strconv"
 	"terraform-provider-hashicups-pf/services/baseservice/models"
 	"terraform-provider-hashicups-pf/services/issuetypeservice"
 	models2 "terraform-provider-hashicups-pf/services/issuetypeservice/models"
@@ -45,7 +46,8 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("issue_type_id", createdIssueType.Id); err != nil {
+			param, _ := strconv.Atoi(createdIssueType.Id)
+			if err = data.Set("issue_type_id", param); err != nil {
 				return diag.FromErr(err)
 			}
 
@@ -81,7 +83,8 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("issue_type_id", foundIssueType.Id); err != nil {
+			param, _ := strconv.Atoi(foundIssueType.Id)
+			if err = data.Set("issue_type_id", param); err != nil {
 				return diag.FromErr(err)
 			}
 
@@ -125,7 +128,8 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("issue_type_id", updatedIssueType.Id); err != nil {
+			param, _ := strconv.Atoi(updatedIssueType.Id)
+			if err = data.Set("issue_type_id", param); err != nil {
 				return diag.FromErr(err)
 			}
 
