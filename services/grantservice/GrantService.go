@@ -36,7 +36,7 @@ func (g GrantService) Get(ctx context.Context, model models.GrantGetRequestModel
 	tflog.Info(ctx, fmt.Sprintf("start list permission scheme grants w. data: %s", model))
 
 	grantsResult, err := g.List(ctx, models.GrantListRequestModel{
-		PermissionSchemeName: model.PermissionSchemeName,
+		PermissionSchemeId: model.PermissionSchemeId,
 	})
 	if err != nil {
 		tflog.Info(ctx, "failed to find permission scheme grant")
@@ -47,8 +47,9 @@ func (g GrantService) Get(ctx context.Context, model models.GrantGetRequestModel
 		JiraServerBase: g.JiraServerBase,
 	}
 
+	param, _ := strconv.Atoi(model.Holder.Parameter)
 	projectRoleFound, err := projectRoleService.GetRole(ctx, models4.ProjectRoleGetRequestModel{
-		Name: model.Holder.Parameter,
+		Id: int64(param),
 	})
 	if err != nil {
 		tflog.Info(ctx, "failed to find project role with role name "+model.Holder.Parameter)
@@ -68,7 +69,7 @@ func (g GrantService) Get(ctx context.Context, model models.GrantGetRequestModel
 	}
 
 	foundGrant.Holder.Parameter = model.Holder.Parameter
-	foundGrant.PermissionSchemeName = model.PermissionSchemeName
+	foundGrant.PermissionSchemeId = model.PermissionSchemeId
 	tflog.Info(ctx, "success find permission scheme grant")
 	return foundGrant, nil
 }
@@ -81,7 +82,7 @@ func (g GrantService) List(ctx context.Context, model models.GrantListRequestMod
 	}
 
 	permissionSchemeFound, err := permissionSchemeService.Get(ctx, models3.PermissionSchemeGetRequestModel{
-		Name: model.PermissionSchemeName,
+		Id: model.PermissionSchemeId,
 	})
 	if err != nil {
 		tflog.Info(ctx, "failed to find permission scheme w. name "+permissionSchemeFound.Name)
@@ -138,15 +139,15 @@ func (g GrantService) Create(ctx context.Context, model models.GrantCreateReques
 	}
 
 	projectRoleFound, err := projectRoleService.GetRole(ctx, models4.ProjectRoleGetRequestModel{
-		Name: model.Holder.Parameter,
+		Id: model.Holder.Parameter,
 	})
 	if err != nil {
-		tflog.Info(ctx, "failed to find project role with role name "+model.Holder.Parameter)
+		tflog.Info(ctx, "failed to find project role with role name "+strconv.Itoa(int(model.Holder.Parameter)))
 		return *new(models.GrantCreateResponseModel), errors.New("failed to find project role")
 	}
 
 	permissionSchemeFound, err := permissionSchemeService.Get(ctx, models3.PermissionSchemeGetRequestModel{
-		Name: model.PermissionSchemeName,
+		Id: model.PermissionSchemeId,
 	})
 	if err != nil {
 		tflog.Info(ctx, "failed to find permission scheme w. name "+permissionSchemeFound.Name)
@@ -200,8 +201,8 @@ func (g GrantService) Create(ctx context.Context, model models.GrantCreateReques
 		return *new(models.GrantCreateResponseModel), errors.New("error unmarshalling response body")
 	}
 
-	result.PermissionSchemeName = model.PermissionSchemeName
-	result.Holder.Parameter = model.Holder.Parameter
+	result.PermissionSchemeId = model.PermissionSchemeId
+	result.Holder.Parameter = string(model.Holder.Parameter)
 	log.Println("success create permission scheme grant")
 	return result, nil
 }
@@ -214,7 +215,7 @@ func (g GrantService) Delete(ctx context.Context, model models.GrantDeleteReques
 	}
 
 	permissionSchemeFound, err := permissionSchemeService.Get(ctx, models3.PermissionSchemeGetRequestModel{
-		Name: model.PermissionSchemeName,
+		Id: model.PermissionSchemeId,
 	})
 	if err != nil {
 		tflog.Info(ctx, "failed to find permission scheme w. name "+permissionSchemeFound.Name)
@@ -222,9 +223,9 @@ func (g GrantService) Delete(ctx context.Context, model models.GrantDeleteReques
 	}
 
 	foundGrant, err := g.Get(ctx, models.GrantGetRequestModel{
-		Permission:           model.Permission,
-		Holder:               model.Holder,
-		PermissionSchemeName: model.PermissionSchemeName,
+		Permission:         model.Permission,
+		Holder:             model.Holder,
+		PermissionSchemeId: model.PermissionSchemeId,
 	})
 	if err != nil {
 		log.Println("failed to find grant")

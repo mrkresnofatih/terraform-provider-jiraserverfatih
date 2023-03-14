@@ -1,9 +1,9 @@
 package models
 
 type GrantCreateRequestModel struct {
-	PermissionSchemeName string           `json:"-"`
-	Permission           string           `json:"permission"`
-	Holder               GrantHolderModel `json:"holder"`
+	PermissionSchemeId int64               `json:"-"`
+	Permission         string              `json:"permission"`
+	Holder             GrantApiHolderModel `json:"holder"`
 }
 
 type GrantCreateApiRequestModel struct {

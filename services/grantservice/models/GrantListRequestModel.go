@@ -1,5 +1,5 @@
 package models
 
 type GrantListRequestModel struct {
-	PermissionSchemeName string `json:"permissionSchemeName"`
+	PermissionSchemeId int64 `json:"permissionSchemeId"`
 }

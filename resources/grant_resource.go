@@ -17,20 +17,20 @@ func GrantResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			permissionSchemeName := data.Get("permission_scheme_name").(string)
+			permissionSchemeId := data.Get("permission_scheme_id").(int64)
 			permissionName := data.Get("permission_name").(string)
 			holderType := data.Get("security_type").(string)
-			holderParam := data.Get("security_param").(string)
+			holderParam := data.Get("security_param").(int)
 
 			grantService := grantservice.GrantService{
 				JiraServerBase: client,
 			}
 
 			createdGrant, err := grantService.Create(ctx, models2.GrantCreateRequestModel{
-				PermissionSchemeName: permissionSchemeName,
-				Holder: models2.GrantHolderModel{
+				PermissionSchemeId: permissionSchemeId,
+				Holder: models2.GrantApiHolderModel{
 					Type:      holderType,
-					Parameter: holderParam,
+					Parameter: int64(holderParam),
 				},
 				Permission: permissionName,
 			})
@@ -38,7 +38,7 @@ func GrantResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("permission_scheme_name", createdGrant.PermissionSchemeName); err != nil {
+			if err = data.Set("permission_scheme_id", createdGrant.PermissionSchemeId); err != nil {
 				return diag.FromErr(err)
 			}
 
@@ -62,21 +62,21 @@ func GrantResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			permissionSchemeName := data.Get("permission_scheme_name").(string)
+			permissionSchemeId := data.Get("permission_scheme_id").(int)
 			permissionName := data.Get("permission_name").(string)
 			holderType := data.Get("security_type").(string)
-			holderParam := data.Get("security_param").(string)
+			holderParam := data.Get("security_param").(int)
 
 			grantService := grantservice.GrantService{
 				JiraServerBase: client,
 			}
 
 			foundGrant, err := grantService.Get(ctx, models2.GrantGetRequestModel{
-				Permission:           permissionName,
-				PermissionSchemeName: permissionSchemeName,
+				Permission:         permissionName,
+				PermissionSchemeId: int64(permissionSchemeId),
 				Holder: models2.GrantHolderModel{
 					Type:      holderType,
-					Parameter: holderParam,
+					Parameter: strconv.Itoa(holderParam),
 				},
 			})
 
@@ -84,7 +84,7 @@ func GrantResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("permission_scheme_name", foundGrant.PermissionSchemeName); err != nil {
+			if err = data.Set("permission_scheme_id", foundGrant.PermissionSchemeId); err != nil {
 				return diag.FromErr(err)
 			}
 
@@ -108,7 +108,7 @@ func GrantResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			permissionSchemeName := data.Get("permission_scheme_name").(string)
+			permissionSchemeId := data.Get("permission_scheme_id").(int)
 			permissionName := data.Get("permission_name").(string)
 			holderType := data.Get("security_type").(string)
 			holderParam := data.Get("security_param").(string)
@@ -118,8 +118,8 @@ func GrantResource() *schema.Resource {
 			}
 
 			foundGrant, err := grantService.Get(ctx, models2.GrantGetRequestModel{
-				Permission:           permissionName,
-				PermissionSchemeName: permissionSchemeName,
+				Permission:         permissionName,
+				PermissionSchemeId: int64(permissionSchemeId),
 				Holder: models2.GrantHolderModel{
 					Type:      holderType,
 					Parameter: holderParam,
@@ -130,7 +130,7 @@ func GrantResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("permission_scheme_name", foundGrant.PermissionSchemeName); err != nil {
+			if err = data.Set("permission_scheme_name", int(foundGrant.PermissionSchemeId)); err != nil {
 				return diag.FromErr(err)
 			}
 
@@ -154,7 +154,7 @@ func GrantResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			permissionSchemeName := data.Get("permission_scheme_name").(string)
+			permissionSchemeId := data.Get("permission_scheme_id").(int)
 			permissionName := data.Get("permission_name").(string)
 			holderType := data.Get("security_type").(string)
 			holderParam := data.Get("security_param").(string)
@@ -164,8 +164,8 @@ func GrantResource() *schema.Resource {
 			}
 
 			_, err := grantService.Delete(ctx, models2.GrantDeleteRequestModel{
-				Permission:           permissionName,
-				PermissionSchemeName: permissionSchemeName,
+				Permission:         permissionName,
+				PermissionSchemeId: int64(permissionSchemeId),
 				Holder: models2.GrantHolderModel{
 					Type:      holderType,
 					Parameter: holderParam,
