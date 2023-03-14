@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+	"strconv"
 	"terraform-provider-hashicups-pf/services/baseservice/models"
 	"terraform-provider-hashicups-pf/services/projectroleservice"
 	models2 "terraform-provider-hashicups-pf/services/projectroleservice/models"
@@ -39,7 +40,11 @@ func ProjectRoleResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			data.SetId(createdRole.Name)
+			if err = data.Set("project_role_id", int(createdRole.Id)); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(strconv.FormatInt(createdRole.Id, 10))
 			log.Println("success create project role")
 			return diags
 		},
@@ -47,14 +52,14 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			id := data.Get("project_role_id").(int)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
 				JiraServerBase: client,
 			}
 
 			projectRole, err := projectRoleService.GetRole(ctx, models2.ProjectRoleGetRequestModel{
-				Name: name,
+				Id: int64(id),
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -68,6 +73,11 @@ func ProjectRoleResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
+			if err = data.Set("project_role_id", int(projectRole.Id)); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(strconv.FormatInt(projectRole.Id, 10))
 			log.Println("success get project role")
 			return diags
 		},
@@ -75,6 +85,7 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
+			id := data.Get("project_role_id").(int)
 			name := data.Get("name").(string)
 			description := data.Get("description").(string)
 
@@ -83,6 +94,7 @@ func ProjectRoleResource() *schema.Resource {
 			}
 
 			updatedRole, err := projectRoleService.UpdateRole(ctx, models2.ProjectRoleUpdateRequestModel{
+				Id:          int64(id),
 				Name:        name,
 				Description: description,
 			})
@@ -98,8 +110,11 @@ func ProjectRoleResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			data.SetId(updatedRole.Name)
+			if err = data.Set("project_role_id", int(updatedRole.Id)); err != nil {
+				return diag.FromErr(err)
+			}
 
+			data.SetId(strconv.FormatInt(updatedRole.Id, 10))
 			log.Println("success update project role")
 			return diags
 		},
@@ -107,14 +122,14 @@ func ProjectRoleResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			id := data.Get("project_role_id").(int)
 
 			projectRoleService := projectroleservice.ProjectRoleService{
 				JiraServerBase: client,
 			}
 
 			_, err := projectRoleService.DeleteRole(ctx, models2.ProjectRoleDeleteRequestModel{
-				Name: name,
+				Id: int64(id),
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -134,6 +149,11 @@ func ProjectRoleResource() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "description of project role",
+			},
+			"project_role_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "the project role id",
 			},
 		},
 	}

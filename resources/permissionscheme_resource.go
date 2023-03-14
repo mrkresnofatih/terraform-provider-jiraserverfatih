@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+	"strconv"
 	"terraform-provider-hashicups-pf/services/baseservice/models"
 	"terraform-provider-hashicups-pf/services/permissionschemeservice"
 	models2 "terraform-provider-hashicups-pf/services/permissionschemeservice/models"
@@ -39,7 +40,11 @@ func PermissionSchemeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			data.SetId(createdPermSch.Name)
+			if err = data.Set("permission_scheme_id", int(createdPermSch.Id)); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(strconv.FormatInt(createdPermSch.Id, 10))
 			log.Println("success create permission scheme")
 			return diags
 		},
@@ -70,7 +75,11 @@ func PermissionSchemeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			data.SetId(updatedPermSch.Name)
+			if err = data.Set("permission_scheme_id", int(updatedPermSch.Id)); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(strconv.FormatInt(updatedPermSch.Id, 10))
 			log.Println("success update permission scheme")
 			return diags
 		},
@@ -78,14 +87,14 @@ func PermissionSchemeResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			id := data.Get("permission_scheme_id").(int)
 
 			permissionSchemeService := permissionschemeservice.PermissionSchemeService{
 				JiraServerBase: client,
 			}
 
 			foundPermSch, err := permissionSchemeService.Get(ctx, models2.PermissionSchemeGetRequestModel{
-				Name: name,
+				Id: int64(id),
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -99,19 +108,25 @@ func PermissionSchemeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
+			if err = data.Set("permission_scheme_id", int(foundPermSch.Id)); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(strconv.FormatInt(foundPermSch.Id, 10))
+			log.Println("success update permission scheme")
 			return diags
 		},
 		DeleteContext: func(ctx context.Context, data *schema.ResourceData, i interface{}) diag.Diagnostics {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			id := data.Get("permission_scheme_id").(int)
 
 			permissionSchemeService := permissionschemeservice.PermissionSchemeService{
 				JiraServerBase: client,
 			}
 			_, err := permissionSchemeService.Delete(ctx, models2.PermissionSchemeDeleteRequestModel{
-				Name: name,
+				Id: int64(id),
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -130,6 +145,11 @@ func PermissionSchemeResource() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "description of permission scheme",
+			},
+			"permission_scheme_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "id of permission scheme",
 			},
 		},
 	}

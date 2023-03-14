@@ -80,7 +80,7 @@ func (i IssueTypeService) Get(ctx context.Context, model models.IssueTypeGetRequ
 
 	foundIssueType := models.IssueTypeGetResponseModel{}
 	for _, it := range issueTypes {
-		if it.Name == model.Name {
+		if it.Id == model.Id {
 			foundIssueType = it
 			break
 		}
@@ -144,6 +144,7 @@ func (i IssueTypeService) Create(ctx context.Context, model models.IssueTypeCrea
 	}
 
 	updatedIssueType, err := i.Update(ctx, models.IssueTypeUpdateRequestModel{
+		Id:          result.Id,
 		Name:        model.Name,
 		Description: model.Description,
 		AvatarId:    model.AvatarId,
@@ -163,7 +164,7 @@ func (i IssueTypeService) Update(ctx context.Context, model models.IssueTypeUpda
 	log.Printf("start update issue type w. data: %s", model)
 
 	foundIssueType, err := i.Get(ctx, models.IssueTypeGetRequestModel{
-		Name: model.Name,
+		Id: model.Id,
 	})
 	if err != nil {
 		log.Println("fail to get issue type for update")
@@ -222,7 +223,7 @@ func (i IssueTypeService) Delete(ctx context.Context, model models.IssueTypeDele
 	log.Printf("start delete issue type w. data: %s", model)
 
 	foundIssueType, err := i.Get(ctx, models.IssueTypeGetRequestModel{
-		Name: model.Name,
+		Id: model.Id,
 	})
 	if err != nil {
 		log.Println("failed to find issue type to be deleted")

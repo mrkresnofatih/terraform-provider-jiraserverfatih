@@ -31,7 +31,7 @@ type ProjectRoleService struct {
 func (p ProjectRoleService) UpdateRole(ctx context.Context, model models.ProjectRoleUpdateRequestModel) (models.ProjectRoleUpdateResponseModel, error) {
 	log.Printf("start update role w. data: %s", model)
 	role, err := p.GetRole(ctx, models.ProjectRoleGetRequestModel{
-		Name: model.Name,
+		Id: model.Id,
 	})
 	if err != nil {
 		log.Println("error get role not found")
@@ -97,7 +97,7 @@ func (p ProjectRoleService) GetRole(ctx context.Context, model models.ProjectRol
 
 	foundRole := models.ProjectRoleGetResponseModel{}
 	for _, role := range roles {
-		if role.Name == model.Name {
+		if role.Id == model.Id {
 			foundRole = role
 		}
 	}
@@ -154,10 +154,7 @@ func (p ProjectRoleService) ListRoles(ctx context.Context, model models.ProjectR
 func (p ProjectRoleService) CreateRole(ctx context.Context, model models.ProjectRoleCreateRequestModel) (models.ProjectRoleCreateResponseModel, error) {
 	tflog.Info(ctx, fmt.Sprintf("Start CreateRole w. data: %s", model))
 
-	serialized, err := json.Marshal(models.ProjectRoleCreateApiRequestModel{
-		Name:        model.Name,
-		Description: model.Description,
-	})
+	serialized, err := json.Marshal(model)
 	if err != nil {
 		tflog.Info(ctx, "error when json marshaling")
 		return *new(models.ProjectRoleCreateResponseModel), errors.New("error json marshal request data")
@@ -203,9 +200,9 @@ func (p ProjectRoleService) CreateRole(ctx context.Context, model models.Project
 }
 
 func (p ProjectRoleService) DeleteRole(ctx context.Context, model models.ProjectRoleDeleteRequestModel) (models.ProjectRoleDeleteResponseModel, error) {
-	log.Printf("start update role w. data: %s", model)
+	log.Printf("start delete role w. data: %s", model)
 	role, err := p.GetRole(ctx, models.ProjectRoleGetRequestModel{
-		Name: model.Name,
+		Id: model.Id,
 	})
 	if err != nil {
 		log.Println("error get role not found")

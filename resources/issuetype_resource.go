@@ -45,7 +45,11 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			data.SetId(createdIssueType.Name)
+			if err = data.Set("issue_type_id", createdIssueType.Id); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(createdIssueType.Id)
 			log.Println("success create issue type")
 			return diags
 		},
@@ -53,13 +57,13 @@ func IssueTypeResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			id := data.Get("issue_type_id").(string)
 			issueTypeService := issuetypeservice.IssueTypeService{
 				JiraServerBase: client,
 			}
 
 			foundIssueType, err := issueTypeService.Get(ctx, models2.IssueTypeGetRequestModel{
-				Name: name,
+				Id: id,
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -77,7 +81,11 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			data.SetId(foundIssueType.Name)
+			if err = data.Set("issue_type_id", foundIssueType.Id); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(foundIssueType.Id)
 			log.Println("success get issue type")
 
 			return diags
@@ -86,6 +94,7 @@ func IssueTypeResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
+			id := data.Get("issue_type_id").(string)
 			name := data.Get("name").(string)
 			description := data.Get("description").(string)
 			avatar_id := data.Get("avatar_id").(int)
@@ -95,6 +104,7 @@ func IssueTypeResource() *schema.Resource {
 			}
 
 			updatedIssueType, err := issueTypeService.Update(ctx, models2.IssueTypeUpdateRequestModel{
+				Id:          id,
 				Name:        name,
 				Description: description,
 				AvatarId:    int64(avatar_id),
@@ -115,7 +125,11 @@ func IssueTypeResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			data.SetId(updatedIssueType.Name)
+			if err = data.Set("issue_type_id", updatedIssueType.Id); err != nil {
+				return diag.FromErr(err)
+			}
+
+			data.SetId(updatedIssueType.Id)
 			log.Println("success update issue type")
 
 			return diags
@@ -124,13 +138,13 @@ func IssueTypeResource() *schema.Resource {
 			var diags diag.Diagnostics
 			client := i.(models.JiraServerBase)
 
-			name := data.Get("name").(string)
+			id := data.Get("issue_type_id").(string)
 			issueTypeService := issuetypeservice.IssueTypeService{
 				JiraServerBase: client,
 			}
 
 			_, err := issueTypeService.Delete(ctx, models2.IssueTypeDeleteRequestModel{
-				Name: name,
+				Id: id,
 			})
 			if err != nil {
 				return diag.FromErr(err)
@@ -138,7 +152,6 @@ func IssueTypeResource() *schema.Resource {
 
 			data.SetId("")
 			log.Println("success delete issue type")
-
 			return diags
 		},
 		Schema: map[string]*schema.Schema{
@@ -156,6 +169,11 @@ func IssueTypeResource() *schema.Resource {
 				Type:        schema.TypeInt,
 				Required:    true,
 				Description: "avatar id of issue type",
+			},
+			"issue_type_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "id of issue type",
 			},
 		},
 	}

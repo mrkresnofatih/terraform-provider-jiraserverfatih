@@ -38,7 +38,7 @@ func (p PermissionSchemeService) Get(ctx context.Context, model models.Permissio
 
 	foundPermissionScheme := models.PermissionSchemeGetResponseModel{}
 	for _, ps := range permissionSchemes.PermissionSchemes {
-		if ps.Name == model.Name {
+		if ps.Id == model.Id {
 			foundPermissionScheme = ps
 		}
 	}
@@ -146,7 +146,7 @@ func (p PermissionSchemeService) Update(ctx context.Context, model models.Permis
 	tflog.Info(ctx, fmt.Sprintf("start update permission scheme w. data: %s", model))
 
 	permissionScheme, err := p.Get(ctx, models.PermissionSchemeGetRequestModel{
-		Name: model.Name,
+		Id: model.Id,
 	})
 	if err != nil {
 		tflog.Info(ctx, "failed to find permission scheme named "+model.Name)
@@ -206,7 +206,7 @@ func (p PermissionSchemeService) Delete(ctx context.Context, model models.Permis
 	tflog.Info(ctx, fmt.Sprintf("start delete permission scheme w. data: %s", model))
 
 	permissionScheme, err := p.Get(ctx, models.PermissionSchemeGetRequestModel{
-		Name: model.Name,
+		Id: model.Id,
 	})
 	url := "https://" + p.JiraServerBase.Domain + "/rest/api/2/permissionscheme/" + strconv.FormatInt(permissionScheme.Id, 10)
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
