@@ -206,7 +206,7 @@ func GrantResource() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"grant_id": &schema.Schema{
-				Type:        schema.TypeString,
+				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "id of permission scheme grant",
 			},
@@ -226,7 +226,7 @@ func GrantResource() *schema.Resource {
 				Description: "name of security type, e.g. projectrole",
 			},
 			"security_param": &schema.Schema{
-				Type:        schema.TypeString,
+				Type:        schema.TypeInt,
 				Required:    true,
 				Description: "value of security type input",
 			},
