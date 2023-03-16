@@ -202,7 +202,7 @@ func (g GrantService) Create(ctx context.Context, model models.GrantCreateReques
 	}
 
 	result.PermissionSchemeId = model.PermissionSchemeId
-	result.Holder.Parameter = string(model.Holder.Parameter)
+	result.Holder.Parameter = strconv.Itoa(int(model.Holder.Parameter))
 	log.Println("success create permission scheme grant")
 	return result, nil
 }
