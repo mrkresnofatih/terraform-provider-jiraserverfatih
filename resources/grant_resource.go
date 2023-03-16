@@ -147,7 +147,7 @@ func GrantResource() *schema.Resource {
 				return diag.FromErr(err)
 			}
 
-			if err = data.Set("permission_scheme_name", int(foundGrant.PermissionSchemeId)); err != nil {
+			if err = data.Set("permission_scheme_id", int(foundGrant.PermissionSchemeId)); err != nil {
 				return diag.FromErr(err)
 			}
 
